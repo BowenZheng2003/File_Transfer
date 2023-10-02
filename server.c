@@ -8,15 +8,20 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 	
-#define PORT	 8080
 #define MAXLINE 1024
 	
-int main() {
+int main(int argc, char *argv[]) {
 	//initialization
 	int sockfd;
 	char buffer[MAXLINE];
 	struct sockaddr_in serverAddress, clientAddress;
-		
+	int port = atoi(argv[1]);	
+
+	//if wrong amount of arguments, exits
+	if (argc != 2){
+		return 1;
+	}
+
 	// Creating Socket
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
 		perror("socket creation failed");
@@ -30,7 +35,7 @@ int main() {
 	// Filling server information
 	serverAddress.sin_family = AF_INET; // IPv4
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(PORT);
+	serverAddress.sin_port = htons(port);
 		
 	// Bind the socket with the server address
 	if ( bind(sockfd, (const struct sockaddr *)&serverAddress,
@@ -60,4 +65,3 @@ int main() {
 		
 	return 0;
 }
-
