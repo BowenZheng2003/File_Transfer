@@ -9,15 +9,21 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-#define PORT	 8080
 #define MAXLINE 1024
 
-int main() {
+int main(int argc, char* argv[]) {
 	//initialization
 	int sockfd;
 	char buffer[MAXLINE];
 	struct sockaddr_in serverAddress;
 	char *input = NULL;
+	int port = atoi(argv[2]);
+	char* servAddress = argv[1];
+
+	//if wrong amount of arguments, exits
+	if (argc != 3){
+		return 1;
+	}
 
 	// allocate memory to store user input
     input = (char *)malloc(256);
@@ -26,11 +32,17 @@ int main() {
     printf("Please Enter A File In The Following Format (ftp <file name>): ");
     fgets(input, MAXLINE, stdin);
 
+	if (strncmp(input, "ftp ", 4) != 0){
+		printf("Must start with a ftp\n");
+		exit(1);
+	}
+
 	//removes 'ftp' part of input
 	char *file_to_send = input + 4;
 
 	// Remove any trailing whitespace or newline characters
 	int length = strlen(file_to_send);
+
 	while (length > 0 && (file_to_send[length - 1] == ' ' || file_to_send[length - 1] == '\n')) {
     	file_to_send[length - 1] = '\0';
     	length--;
@@ -38,6 +50,7 @@ int main() {
 
 	//checks if the file doesn't exist	
     if (access(file_to_send, F_OK) != 0){
+		printf("File Doesn't Exist\n");
         exit(1);
     }
 
@@ -52,8 +65,8 @@ int main() {
 		
 	// Filling server information
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(PORT);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_port = htons(port);
+	serverAddress.sin_addr.s_addr = inet_addr(servAddress);
 		
 	int n, len;
 		
